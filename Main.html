@@ -21,7 +21,7 @@ width: 4000, height: 600,
 physics: {
 default: 'arcade',
 arcade: {
-gravity: { y: 300 },
+gravity: { y: 0 },
 debug: true
 }},
 scene: {preload: preload, create: create, update: update }
@@ -29,7 +29,7 @@ scene: {preload: preload, create: create, update: update }
 
 new Phaser.Game(config);
 function preload(){
-this.load.image('sky', 'assets/sky.png');
+this.load.image('sky', 'assets/background.jpg');
 this.load.image('ground', 'assets/platform.png');
 this.load.image('star', 'assets/star.png');
 this.load.image('bomb', 'assets/bomb.png');
@@ -45,6 +45,7 @@ var score;
 score = 0
 var scoreText;
 var camera;
+var anti_gravite;
 
 
 function create (){
@@ -56,6 +57,9 @@ function create (){
 
     platforms.create(400, 568, 'ground').setScale(2).refreshBody();
     platforms.create(1200, 568, 'ground').setScale(2).refreshBody();
+    platforms.create(2000, 568, 'ground').setScale(2).refreshBody();
+    platforms.create(2800, 568, 'ground').setScale(2).refreshBody();
+    platforms.create(3600, 568, 'ground').setScale(2).refreshBody();
 
     //Plateforme
 
@@ -66,7 +70,6 @@ function create (){
     // Joueur et animations
 
     player = this.physics.add.sprite(100, 450, 'perso');
-    player.setBounce(0.2);
     player.setCollideWorldBounds(true);
     this.physics.add.collider(player, platforms);
     this.anims.create({
@@ -105,7 +108,7 @@ function create (){
     //mais en revanche cela déclenche une fonction collectStar
 
     //Collider bomb
-    
+
     bombs = this.physics.add.group();
     this.physics.add.collider(bombs, platforms);
     this.physics.add.collider(player, bombs, hitBomb, null, this);
@@ -121,26 +124,36 @@ function create (){
 function update(){
 
         if (cursors.left.isDown){ //si la touche gauche est appuyée
-    player.setVelocityX(-160); //alors vitesse négative en X
+    player.setVelocityX(-400); //alors vitesse négative en X
     player.anims.play('left', true); //et animation => gauche
     }
     else if (cursors.right.isDown){ //sinon si la touche droite est appuyée
-    player.setVelocityX(160); //alors vitesse positive en X
+    player.setVelocityX(400); //alors vitesse positive en X
     player.anims.play('right', true); //et animation => droite
     }
     else{ // sinon
     player.setVelocityX(0); //vitesse nulle
     player.anims.play('turn'); //animation fait face caméra
     }
-    if (cursors.up.isDown && player.body.touching.down){
+    if (cursors.up.isDown){
     //si touche haut appuyée ET que le perso touche le sol
-    player.setVelocityY(-330); //alors vitesse verticale négative
+    player.setVelocityY(-400); //alors vitesse verticale négative
     //(on saute)
     }
-    if (cursors.space.isDown)
-    bombs.setVelocityX(0);
-    bombs.setVelocityY(0);
-    player.setTint()
+    else if (cursors.down.isDown){ //sinon si la touche droite est appuyée
+    player.setVelocityY(400); //alors vitesse positive en X
+    player.anims.play('right', true); //et animation => droite
+    }
+    else{ // sinon
+    player.setVelocityY(0); //vitesse nulle
+    player.anims.play('turn'); //animation fait face caméra
+    }
+
+    if (cursors.space.isDown){ 
+    bombs.setVelocityX (0);
+    bombs.setVelocityY (0);
+    player.setTint(0xff00ff);
+    }
 
 }
 
