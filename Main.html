@@ -21,7 +21,7 @@ width: 4000, height: 600,
 physics: {
 default: 'arcade',
 arcade: {
-gravity: { y: 600 },
+gravity: { y: 0 },
 debug: true
 }},
 scene: {preload: preload, create: create, update: update }
@@ -32,6 +32,7 @@ function preload(){
 this.load.image('sky', 'assets/background.jpg');
 this.load.image('ground', 'assets/platform.png');
 this.load.image('toyo', 'assets/toyo-moche1.png');
+this.load.image('mob', 'assets/mob.png');
 this.load.spritesheet('perso','assets/perso.png',
 { frameWidth: 32, frameHeight: 48 });
 }
@@ -41,8 +42,9 @@ var player;
 var camera;
 var anti_gravite;
 var toyo;
-var hp;
-hp = 3;
+var hp = 3;
+
+var mob; 
 
 
 function create (){
@@ -50,6 +52,7 @@ function create (){
     this.add.image(400, 300, 'sky');
     platforms = this.physics.add.staticGroup();
     toyo = this.physics.add.staticGroup();
+    mob = this.physics.add.staticGroup();
 
     //Plateforme
 
@@ -60,13 +63,25 @@ function create (){
     toyo.create(1000, 100, 'toyo');
     toyo.create(1000, 500, 'toyo');
     toyo.create(200, 500, 'toyo');
+    toyo.create(1300, 100, 'toyo');
+    toyo.create(1300, 300, 'toyo');
+    toyo.create(1600, 500, 'toyo');
+    toyo.create(1600, 300, 'toyo');
+    toyo.create(1800, 500, 'toyo');
+    toyo.create(2000, 50, 'toyo');
+    toyo.create(2100, 300, 'toyo');
+    toyo.create(2400, 500, 'toyo');
+    toyo.create(2700, 100, 'toyo');
+    toyo.create(3000, 400, 'toyo');
+    toyo.create(3200, 100, 'toyo');
+    platforms.create(3900, 350, 'ground');
 
     // Joueur et animations
 
     player = this.physics.add.sprite(100, 300, 'perso');
     player.setCollideWorldBounds(true);
     this.physics.add.collider(player, platforms);
-    this.physics.add.collider(player, toyo, degatObstacle, null, this);
+    this.physics.add.collider(player, toyo);
     this.anims.create({
     key: 'left',
     frames: this.anims.generateFrameNumbers('perso', {start:0,end:3}),
@@ -93,6 +108,18 @@ function create (){
     this.cameras.main.setSize(800, 600);
     this.cameras.main.startFollow(player);
 
+
+    
+    mob = this.physics.add.image(3500, 50, 'mob');
+    this.physics.add.overlap(player, mob, degatObstacle, null, this);
+
+
+    hpText = this.add.text (100,100,hp)
+    hpText.setScrollFactor(0)
+    
+    
+    
+
 }
 
 function update(){
@@ -118,15 +145,48 @@ function update(){
     bombs.setVelocityY (0);
     player.setTint(0xff00ff);
     }
+    
+    // 
+    if (mob.y <= 200){
+    mob.setVelocityY(100)
+    }
 
+    if (mob.y >= 400){
+    mob.setVelocityY(-100)
+    }
+    player.setGravity(x = 0,y = 600);
+
+
+//    if(invincible == true){
+//        compteur-- ;
+//        if(compteur == 0){
+//            compteur = 60;
+//            player.setTint(0xffffff);
+//            invincible = false ;
+//        }
+//    }
 }
 
-function degatObstacle(player, toyo){
-    
-    hp -= 1 ;  
+//function onEvent (){
+//    degat = true;
+//    if(invincible == true){
+//        compteur-- ;
+//        if(compteur == 0){
+//            compteur = 60;
+//            player.setTint(0xffffff);
+//            invincible = false ;
+//            degat = true;
+//        }
+//    }
+//}
 
-    if (hp = 0){
-        this.physics.pause();
+function degatObstacle(player, mob){
+
+    hp -= 1 ;  
+    hpText.setText(hp);
+
+    if (hp = -1){
+        this.scene.restart();
     player.setTint(0xff0000);
     player.anims.play('turn');
     gameOver = false;
