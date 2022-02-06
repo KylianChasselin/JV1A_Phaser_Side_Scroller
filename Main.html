@@ -35,8 +35,8 @@ this.load.image('ground', 'assets/platform.png');
 this.load.image('toyo', 'assets/toyo-venom.png');
 this.load.image('toyo2', 'assets/toyo-venom-inverse.png');
 this.load.image('mob', 'assets/mob.png');
-this.load.spritesheet('perso','assets/perso.png',
-{ frameWidth: 32, frameHeight: 48 });
+this.load.spritesheet('perso','assets/HIRO-Sprite.png',
+{ frameWidth: 61, frameHeight: 53 });
 }
 
 var platforms;
@@ -89,18 +89,18 @@ function create (){
     this.physics.add.collider(player, toyo);
     this.anims.create({
     key: 'left',
-    frames: this.anims.generateFrameNumbers('perso', {start:0,end:3}),
+    frames: this.anims.generateFrameNumbers('perso', {start:0,end:1}),
     frameRate: 10,
     repeat: -1
     });
     this.anims.create({
     key: 'turn',
-    frames: [ { key: 'perso', frame: 4 } ],
+    frames: [ { key: 'perso', frame: 2 } ],
     frameRate: 20
     });
     this.anims.create({
     key: 'right',
-    frames: this.anims.generateFrameNumbers('perso', {start:5,end:8}),
+    frames: this.anims.generateFrameNumbers('perso', {start:3,end:4}),
     frameRate: 10,
     repeat: -1
     });
