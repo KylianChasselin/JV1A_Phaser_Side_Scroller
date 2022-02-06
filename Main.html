@@ -22,56 +22,71 @@ physics: {
 default: 'arcade',
 arcade: {
 gravity: { y: 0 },
-debug: true
+debug: false
 }},
 scene: {preload: preload, create: create, update: update }
 };
 
 new Phaser.Game(config);
 function preload(){
-this.load.image('sky', 'assets/background.jpg');
+this.load.image('sky', 'assets/couloir-adapte.png');
+this.load.image('sky2', 'assets/space-adapte.png');
 this.load.image('ground', 'assets/platform.png');
-this.load.image('star', 'assets/star.png');
-this.load.image('bomb', 'assets/bomb.png');
+this.load.image('toyo', 'assets/toyo-venom.png');
+this.load.image('toyo2', 'assets/toyo-venom-inverse.png');
+this.load.image('mob', 'assets/mob.png');
 this.load.spritesheet('perso','assets/perso.png',
 { frameWidth: 32, frameHeight: 48 });
 }
 
 var platforms;
 var player;
-var bombs;
-var star;
-var score;
-score = 0
-var scoreText;
 var camera;
 var anti_gravite;
+var toyo;
+var hp = 3;
+
+var mob; 
 
 
 function create (){
 
-    this.add.image(400, 300, 'sky');
+    this.add.image(525, 300, 'sky');
+    this.add.image(1575, 300, 'sky2');
+    this.add.image(2625, 300, 'sky');
+    this.add.image(3675, 300, 'sky');
     platforms = this.physics.add.staticGroup();
-
-    //sol 
-
-    platforms.create(400, 568, 'ground').setScale(2).refreshBody();
-    platforms.create(1200, 568, 'ground').setScale(2).refreshBody();
-    platforms.create(2000, 568, 'ground').setScale(2).refreshBody();
-    platforms.create(2800, 568, 'ground').setScale(2).refreshBody();
-    platforms.create(3600, 568, 'ground').setScale(2).refreshBody();
+    toyo = this.physics.add.staticGroup();
+    mob = this.physics.add.staticGroup();
 
     //Plateforme
 
-    platforms.create(600, 400, 'ground');
-    platforms.create(50, 250, 'ground');
-    platforms.create(750, 220, 'ground');
+    platforms.create(50, 350, 'ground');
+    toyo.create(400, 100, 'toyo');
+    toyo.create(600, 500, 'toyo2');
+    toyo.create(800, 100, 'toyo');
+    toyo.create(1000, 100, 'toyo');
+    toyo.create(1000, 500, 'toyo2');
+    toyo.create(200, 500, 'toyo2');
+    toyo.create(1300, 100, 'toyo');
+    toyo.create(1300, 300, 'toyo');
+    toyo.create(1600, 500, 'toyo2');
+    toyo.create(1600, 300, 'toyo');
+    toyo.create(1800, 500, 'toyo2');
+    toyo.create(2000, 50, 'toyo');
+    toyo.create(2100, 300, 'toyo');
+    toyo.create(2400, 500, 'toyo2');
+    toyo.create(2700, 100, 'toyo');
+    toyo.create(3000, 400, 'toyo');
+    toyo.create(3200, 100, 'toyo');
+    platforms.create(3900, 350, 'ground');
 
     // Joueur et animations
 
-    player = this.physics.add.sprite(100, 450, 'perso');
+    player = this.physics.add.sprite(100, 300, 'perso');
     player.setCollideWorldBounds(true);
     this.physics.add.collider(player, platforms);
+    this.physics.add.collider(player, toyo);
     this.anims.create({
     key: 'left',
     frames: this.anims.generateFrameNumbers('perso', {start:0,end:3}),
@@ -92,61 +107,38 @@ function create (){
 
     cursors = this.input.keyboard.createCursorKeys();
 
-    scoreText=this.add.text(16,16,'score: 0',{fontSize:'32px',fill:'#000'});
-    //affiche un texte à l’écran, pour le score
-    stars = this.physics.add.group({
-    key: 'star', repeat: 11,
-    setXY: { x: 12, y: 0, stepX: 70 }
-    });
-    stars.children.iterate(function (child) {
-    child.setBounceY(Phaser.Math.FloatBetween(0.4, 0.8));
-    }); //chaque étoile va rebondir un peu différemment
-    this.physics.add.collider(stars, platforms);
-    //et collisionne avec les plateformes
-    this.physics.add.overlap(player, stars, collectStar, null, this);
-    //le contact perso/étoile ne génère pas de collision (overlap)
-    //mais en revanche cela déclenche une fonction collectStar
-
-    //Collider bomb
-
-    bombs = this.physics.add.group();
-    this.physics.add.collider(bombs, platforms);
-    this.physics.add.collider(player, bombs, hitBomb, null, this);
-
     // Camera
 
     this.cameras.main.setBounds(0, 0, 4000, 448);
     this.cameras.main.setSize(800, 600);
     this.cameras.main.startFollow(player);
 
+
+    
+    mob = this.physics.add.image(3500, 50, 'mob');
+    this.physics.add.overlap(player, mob, degatObstacle, null, this);
+
+
+    hpText = this.add.text (50,50,hp)
+    hpText.setScrollFactor(0)
 }
 
 function update(){
 
-        if (cursors.left.isDown){ //si la touche gauche est appuyée
-    player.setVelocityX(-400); //alors vitesse négative en X
-    player.anims.play('left', true); //et animation => gauche
+        if (cursors.left.isDown){
+    player.setVelocityX(-200);
+    player.anims.play('left', true);
     }
-    else if (cursors.right.isDown){ //sinon si la touche droite est appuyée
-    player.setVelocityX(400); //alors vitesse positive en X
-    player.anims.play('right', true); //et animation => droite
+    else if (cursors.right.isDown){
+    player.setVelocityX(200);
+    player.anims.play('right', true);
     }
-    else{ // sinon
-    player.setVelocityX(0); //vitesse nulle
-    player.anims.play('turn'); //animation fait face caméra
+    else{ 
+    player.setVelocityX(0);
+    player.anims.play('turn');
     }
     if (cursors.up.isDown){
-    //si touche haut appuyée ET que le perso touche le sol
-    player.setVelocityY(-400); //alors vitesse verticale négative
-    //(on saute)
-    }
-    else if (cursors.down.isDown){ //sinon si la touche droite est appuyée
-    player.setVelocityY(400); //alors vitesse positive en X
-    player.anims.play('right', true); //et animation => droite
-    }
-    else{ // sinon
-    player.setVelocityY(0); //vitesse nulle
-    player.anims.play('turn'); //animation fait face caméra
+    player.setVelocityY(-300); 
     }
 
     if (cursors.space.isDown){ 
@@ -154,41 +146,52 @@ function update(){
     bombs.setVelocityY (0);
     player.setTint(0xff00ff);
     }
-
-}
-
-function collectStar(player, star){
-    star.disableBody(true, true); // l’étoile disparaît
-    score += 10; //augmente le score de 10
-    scoreText.setText('Score: ' + score); //met à jour l’affichage du score
-
-    bombs = this.physics.add.group();
-    this.physics.add.collider(bombs, platforms);
-    this.physics.add.collider(player, bombs, hitBomb, null, this);
-
-    if (stars.countActive(true) === 0){// si toutes les étoiles sont prises
-    stars.children.iterate(function (child) {
-    child.enableBody(true, child.x, 0, true, true);
-    }); // on les affiche toutes de nouveau
-    var x = (player.x < 400) ? Phaser.Math.Between(400, 800) :
-    Phaser.Math.Between(0, 400);
-    // si le perso est à gauche de l’écran, on met une bombe à droite
-    // si non, on la met à gauche de l’écran
-    var bomb = bombs.create(x, 16, 'bomb');
-    bomb.setBounce(1);
-    bomb.setCollideWorldBounds(true);
-    bomb.setVelocity(Phaser.Math.Between(-200, 200), 20);
-    bomb.allowGravity = false; //elle n’est pas soumise à la gravité
+    
+    // 
+    if (mob.y <= 200){
+    mob.setVelocityY(100)
     }
+
+    if (mob.y >= 400){
+    mob.setVelocityY(-100)
+    }
+    player.setGravity(x = 0,y = 600);
+
+
+//    if(invincible == true){
+//        compteur-- ;
+//        if(compteur == 0){
+//            compteur = 60;
+//            player.setTint(0xffffff);
+//            invincible = false ;
+//        }
+//    }
 }
 
-function hitBomb(player, bomb){
+//function onEvent (){
+//    degat = true;
+//    if(invincible == true){
+//        compteur-- ;
+//        if(compteur == 0){
+//            compteur = 60;
+//            player.setTint(0xffffff);
+//            invincible = false ;
+//            degat = true;
+//        }
+//    }
+//}
 
-    this.physics.pause();
+function degatObstacle(player, mob){
+
+    hp -= 1 ;  
+    hpText.setText(hp);
+
+    if (hp = -1){
+        this.scene.restart();
     player.setTint(0xff0000);
     player.anims.play('turn');
     gameOver = false;
-
+    }
 }
 
 </script>
